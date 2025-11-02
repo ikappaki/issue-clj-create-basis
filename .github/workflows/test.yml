@@ -1,0 +1,37 @@
+name: deps.build Issue
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  issue-test:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        jdk: [24]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ matrix.jdk }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: ${{ matrix.jdk }}
+
+      - name: Install clojure build tools
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          cli: '1.12.0.1530'
+          bb: '1.12.200'
+
+      - name: Generate embedded binary
+        run: |
+          clojure -T:build issue
+
